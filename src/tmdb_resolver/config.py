@@ -9,15 +9,28 @@ _logger = logging.getLogger(__name__)
 
 
 @dataclass
+class TmdbConfig:
+    api_token: str
+
+    @classmethod
+    def from_env(cls, env: Env) -> Self:
+        return cls(
+            api_token=env.get_string("API_TOKEN", required=True),
+        )
+
+
+@dataclass
 class Config:
     app_version: str
     sentry_dsn: str | None
+    tmdb: TmdbConfig
 
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
             app_version=env.get_string("APP_VERSION", default="dev"),
-            sentry_dsn=env.get_string("SENTRY_DSN", required=False),
+            sentry_dsn=env.get_string("SENTRY_DSN"),
+            tmdb=TmdbConfig.from_env(env.scoped("TMDB_")),
         )
 
 

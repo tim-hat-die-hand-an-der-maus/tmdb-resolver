@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
 
-class ResolverRequest(BaseModel):
-    imdbUrl: str
+class ResolveByLinkRequest(BaseModel):
+    tmdbUrl: str
 
 
 class CoverMetadata(BaseModel):
