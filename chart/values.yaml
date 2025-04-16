@@ -1,0 +1,14 @@
+appVersion: latest
+image:
+  app: ghcr.io/tim-hat-die-hand-an-der-maus/tmdb-resolver
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 128Mi
+
+service:
+  name: tmdb
