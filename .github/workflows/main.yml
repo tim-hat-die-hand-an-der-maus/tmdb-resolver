@@ -23,7 +23,9 @@ jobs:
     with:
       build-tool: uv
       python-version: '3.13'
-    secrets: inherit
+    secrets:
+      ENVIRONMENT_VARIABLES: |
+        TMDB_API_TOKEN=${{ secrets.TMDB_API_TOKEN }}
 
   build-container-image:
     needs:
