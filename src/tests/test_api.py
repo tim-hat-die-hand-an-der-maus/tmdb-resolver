@@ -28,7 +28,7 @@ def compare_results_by_url(imdb_id: str, actual: dict) -> bool:
 def test_url(client):
     for url in get_test_data().keys():
         response = client.post(
-            "/",
+            "/by_link",
             headers={"Content-Type": "application/json", "Accept": "application/json"},
             json={"imdbUrl": url},
         )
