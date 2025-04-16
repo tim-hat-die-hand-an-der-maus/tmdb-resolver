@@ -30,7 +30,7 @@ def test_url(client):
         response = client.post(
             "/by_link",
             headers={"Content-Type": "application/json", "Accept": "application/json"},
-            json={"imdbUrl": url},
+            json={"tmdbUrl": url},
         )
 
         assert response.status_code == get_test_data()[url].get("code", 200)
