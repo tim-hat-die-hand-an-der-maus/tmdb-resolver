@@ -14,6 +14,5 @@ class Movie(BaseModel):
     id: str
     title: str
     year: int
-    rating: str
-    cover: CoverMetadata
-    coverUrl: str
+    rating: str | None
+    cover: CoverMetadata | None

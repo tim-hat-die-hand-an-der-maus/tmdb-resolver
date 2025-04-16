@@ -7,7 +7,13 @@ class TmdbClient:
         self._config = config
 
     async def get_movie_by_url(self, url: str) -> model.Movie | None:
-        return None
+        return model.Movie(
+            id="615665",
+            title="Holidate",
+            year=2020,
+            rating="4.8",
+            cover=None,
+        )
 
     async def close(self) -> None:
         pass
