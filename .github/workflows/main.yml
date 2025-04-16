@@ -25,7 +25,6 @@ jobs:
       python-version: '3.13'
     secrets: inherit
 
-
   build-container-image:
     needs:
       - lint
