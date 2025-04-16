@@ -23,6 +23,8 @@ jobs:
     with:
       build-tool: uv
       python-version: '3.13'
+    secrets: inherit
+
 
   build-container-image:
     needs:
