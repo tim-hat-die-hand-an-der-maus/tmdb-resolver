@@ -8,7 +8,12 @@ from bs_state import StateStorage
 from httpx import Request, Response
 
 from tmdb_resolver import model
-from tmdb_resolver.client._model import Movie, MovieResults
+from tmdb_resolver.client._model import (
+    ApiConfiguration,
+    Movie,
+    MovieImages,
+    MovieResults,
+)
 from tmdb_resolver.client._state import State
 from tmdb_resolver.client._url_parser import UrlParser
 from tmdb_resolver.config import TmdbConfig
@@ -67,6 +72,28 @@ class TmdbClient:
     def url_parser(self) -> UrlParser:
         return UrlParser()
 
+    async def _refresh_api_configuration(self) -> ApiConfiguration:
+        try:
+            response = await self._client.get("/configuration")
+        except httpx.RequestError as e:
+            raise IoException from e
+
+        self.validate_response(response)
+
+        return ApiConfiguration.model_validate_json(response.content)
+
+    async def _get_api_configuration(self) -> ApiConfiguration:
+        state_storage = self._state_storage
+        state = await state_storage.load()
+        api_config = state.api_config
+
+        if api_config is None:
+            api_config = await self._refresh_api_configuration()
+            state.api_config = api_config
+            await state_storage.store(state)
+
+        return api_config
+
     @staticmethod
     def validate_response(response: httpx.Response) -> None:
         if response.is_server_error:
@@ -116,6 +143,27 @@ class TmdbClient:
             _logger.warning("Received more than one result for IMDb ID %s", imdb_id)
 
         return results.movie_results[0].to_model()
+
+    async def get_cover_metadata(self, tmdb_id: str) -> model.CoverMetadata | None:
+        try:
+            response = await self._client.get(
+                f"/movie/{tmdb_id}/images",
+                params=dict(
+                    include_image_language="en,de,null",
+                ),
+            )
+        except httpx.RequestError as e:
+            raise IoException from e
+
+        self.validate_response(response)
+
+        result = MovieImages.model_validate_json(response.content)
+        if not result.posters:
+            return None
+
+        image = max(result.posters, key=lambda m: m.vote_average)
+        api_config = await self._get_api_configuration()
+        return image.to_model(api_config.images)
 
     async def close(self) -> None:
         await self._client.aclose()

@@ -32,6 +32,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/by_link")
 async def movie_by_link(req: model.ResolveByLinkRequest) -> model.Movie:
+    _logger.info("Searching movie for link %s", req.link)
     tmdb_id = client.url_parser.extract_tmdb_id(req.link)
 
     if tmdb_id:
@@ -49,5 +50,9 @@ async def movie_by_link(req: model.ResolveByLinkRequest) -> model.Movie:
             status_code=404,
             detail=f"link couldn't be resolved to a movie: {req.link}",
         )
+
+    if not movie.cover:
+        _logger.info("Retrieving cover metadata for movie %s", movie.id)
+        movie.cover = await client.get_cover_metadata(movie.id)
 
     return movie
