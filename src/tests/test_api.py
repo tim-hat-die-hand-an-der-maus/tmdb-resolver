@@ -25,7 +25,7 @@ def compare_results_by_url(imdb_id: str, actual: dict) -> bool:
     return all(e[1] for e in result.items())
 
 
-def test_url(client):
+def test_by_link(client):
     for url in get_test_data().keys():
         response = client.post(
             "/by_link",
