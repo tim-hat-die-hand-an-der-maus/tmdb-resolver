@@ -1,14 +1,14 @@
 from typing import Annotated
 
-from pydantic import BaseModel, StringConstraints
+from pydantic import BaseModel, HttpUrl, StringConstraints
 
 
 class ResolveByLinkRequest(BaseModel):
-    tmdbUrl: str
+    link: HttpUrl
 
 
 class CoverMetadata(BaseModel):
-    url: str
+    url: HttpUrl
     ratio: float
 
 
