@@ -1,37 +1,44 @@
-IGNORE_FIELDS = {"cover", "coverUrl", "rating"}
+from typing import Any, TypedDict
+
+import pytest
+
+IGNORE_FIELDS = {"cover", "rating"}
+EXAMPLE_DATA_HOLIDATE = {
+    "id": "615665",
+    "title": "Holidate",
+    "year": 2020,
+}
 
 
-def get_test_data():
-    return {
-        "https://www.themoviedb.org/movie/615665-holidate": {
-            "code": 200,
-            "data": {
-                "id": "615665",
-                "title": "Holidate",
-                "year": 2020,
-            },
-        }
-    }
+class ExpectedResponse(TypedDict):
+    code: int
+    data: dict[str, Any]
 
 
-def compare_results_by_url(imdb_id: str, actual: dict) -> bool:
-    expected: dict = get_test_data()[imdb_id]["data"]
-    comparable_keys = expected.keys() - IGNORE_FIELDS
+def assert_response_payload(*, expected: dict, actual: dict) -> None:
+    for field in IGNORE_FIELDS:
+        assert field in actual
+        del actual[field]
 
-    result = {}
-    for key in comparable_keys:
-        result[key] = expected[key] == actual[key]
-
-    return all(e[1] for e in result.items())
+    assert actual == expected
 
 
-def test_by_link(client):
-    for url in get_test_data().keys():
-        response = client.post(
-            "/by_link",
-            headers={"Content-Type": "application/json", "Accept": "application/json"},
-            json={"link": url},
-        )
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://www.themoviedb.org/movie/615665-holidate",
+        "https://www.imdb.com/title/tt9866072/",
+    ],
+)
+def test_by_link(client, url):
+    response = client.post(
+        "/by_link",
+        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        json={"link": url},
+    )
 
-        assert response.status_code == get_test_data()[url].get("code", 200)
-        assert compare_results_by_url(url, response.json())
+    assert response.status_code == 200
+    assert_response_payload(
+        expected=EXAMPLE_DATA_HOLIDATE,
+        actual=response.json(),
+    )

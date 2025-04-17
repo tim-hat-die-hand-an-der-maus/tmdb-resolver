@@ -29,7 +29,17 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/by_link")
 async def movie_by_link(req: model.ResolveByLinkRequest) -> model.Movie:
-    movie = await client.get_movie_by_tmdb_url(req.link)
+    tmdb_id = client.url_parser.extract_tmdb_id(req.link)
+
+    if tmdb_id:
+        movie = await client.get_movie_by_id(tmdb_id)
+    elif imdb_id := client.url_parser.extract_imdb_id(req.link):
+        movie = await client.get_movie_by_imdb_id(imdb_id)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail=f"could not extract movie ID: {req.link}",
+        )
 
     if not movie:
         raise HTTPException(

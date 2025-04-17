@@ -15,19 +15,15 @@ class Genre(TmdbResponse):
     name: str
 
 
-class TmdbMovie(TmdbResponse):
+class Movie(TmdbResponse):
     adult: bool
-    genres: list[Genre]
-    homepage: str
     id: int
-    imdb_id: str
     original_language: str
     release_date: datetime
+    poster_path: str
     title: str
-    status: str
     vote_count: int
     vote_average: float
-    runtime: int
 
     def to_model(self) -> model.Movie:
         return model.Movie(
@@ -37,3 +33,7 @@ class TmdbMovie(TmdbResponse):
             cover=None,
             rating=f"{self.vote_average:.1f}",
         )
+
+
+class MovieResults(TmdbResponse):
+    movie_results: list[Movie]

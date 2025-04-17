@@ -4,11 +4,10 @@ from collections.abc import Generator
 
 import httpx
 from httpx import Request, Response
-from pydantic import HttpUrl
 
-import tmdb_resolver.client._url_parser as url_parser
 from tmdb_resolver import model
-from tmdb_resolver.client._model import TmdbMovie
+from tmdb_resolver.client._model import Movie, MovieResults
+from tmdb_resolver.client._url_parser import UrlParser
 from tmdb_resolver.config import TmdbConfig
 
 _logger = logging.getLogger(__name__)
@@ -44,18 +43,12 @@ class TmdbClient:
             headers={"Accept": "application/json"},
         )
 
-    async def get_movie_by_tmdb_url(self, url: HttpUrl) -> model.Movie | None:
-        try:
-            movie_id = url_parser.extract_tmdb_id(url)
-        except ValueError as e:
-            _logger.info("Could not extract movie id from %s: %s", url, e)
-            return None
+    @property
+    def url_parser(self) -> UrlParser:
+        return UrlParser()
 
-        try:
-            response = await self._client.get(f"/movie/{movie_id}")
-        except httpx.RequestError as e:
-            raise IoException from e
-
+    @staticmethod
+    def validate_response(response: httpx.Response) -> None:
         if response.is_server_error:
             raise IoException("Received server error %d", response.status_code)
 
@@ -71,8 +64,38 @@ class TmdbClient:
                 "Received non-successful response %d", response.status_code
             )
 
-        tmdb_movie = TmdbMovie.model_validate_json(response.text)
+    async def get_movie_by_id(self, tmdb_id: str | int) -> model.Movie | None:
+        try:
+            response = await self._client.get(f"/movie/{tmdb_id}")
+        except httpx.RequestError as e:
+            raise IoException from e
+
+        self.validate_response(response)
+
+        tmdb_movie = Movie.model_validate_json(response.content)
         return tmdb_movie.to_model()
+
+    async def get_movie_by_imdb_id(self, imdb_id: str) -> model.Movie | None:
+        try:
+            response = await self._client.get(
+                f"/find/{imdb_id}",
+                params=dict(
+                    external_source="imdb_id",
+                ),
+            )
+        except httpx.RequestError as e:
+            raise IoException from e
+
+        self.validate_response(response)
+
+        results = MovieResults.model_validate_json(response.text)
+        if not results.movie_results:
+            return None
+
+        if len(results.movie_results) > 1:
+            _logger.warning("Received more than one result for IMDb ID %s", imdb_id)
+
+        return results.movie_results[0].to_model()
 
     async def close(self) -> None:
         await self._client.aclose()
