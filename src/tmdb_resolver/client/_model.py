@@ -56,13 +56,14 @@ class Movie(TmdbResponse):
     title: str
     vote_count: int
     vote_average: float
+    imdb_id: str | None = None
 
-    def to_model(self) -> model.Movie:
+    def to_model(self, cover: model.CoverMetadata | None) -> model.Movie:
         return model.Movie(
             id=str(self.id),
             title=self.title,
             year=self.release_date.year,
-            cover=None,
+            cover=cover,
             rating=f"{self.vote_average:.1f}",
         )
 

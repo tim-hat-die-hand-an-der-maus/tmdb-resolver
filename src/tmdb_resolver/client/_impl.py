@@ -5,7 +5,7 @@ from typing import Self
 
 import httpx
 from bs_state import StateStorage
-from httpx import Request, Response
+from httpx import URL, Request, Response
 
 from tmdb_resolver import model
 from tmdb_resolver.client._model import (
@@ -50,10 +50,14 @@ class TmdbClient:
         state_storage: StateStorage[State],
     ) -> None:
         self._config = config
-        self._client = httpx.AsyncClient(
+        self._api_client = httpx.AsyncClient(
             auth=_BearerAuth(config.api_token),
             base_url="https://api.themoviedb.org/3",
             headers={"Accept": "application/json"},
+        )
+        self._public_client = httpx.AsyncClient(
+            base_url="https://www.themoviedb.org",
+            headers={"Accept": "text/html"},
         )
         self._state_storage = state_storage
 
@@ -74,7 +78,7 @@ class TmdbClient:
 
     async def _refresh_api_configuration(self) -> ApiConfiguration:
         try:
-            response = await self._client.get("/configuration")
+            response = await self._api_client.get("/configuration")
         except httpx.RequestError as e:
             raise IoException from e
 
@@ -95,7 +99,11 @@ class TmdbClient:
         return api_config
 
     @staticmethod
-    def validate_response(response: httpx.Response) -> None:
+    def validate_response(
+        response: httpx.Response,
+        *,
+        is_redirect_ok: bool = False,
+    ) -> None:
         if response.is_server_error:
             raise IoException("Received server error %d", response.status_code)
 
@@ -106,25 +114,27 @@ class TmdbClient:
                 response.text,
             )
 
+        if response.is_redirect and is_redirect_ok:
+            return
+
         if not response.is_success:
             raise RequestException(
                 "Received non-successful response %d", response.status_code
             )
 
-    async def get_movie_by_id(self, tmdb_id: str | int) -> model.Movie | None:
+    async def get_movie_by_id(self, tmdb_id: str | int) -> Movie | None:
         try:
-            response = await self._client.get(f"/movie/{tmdb_id}")
+            response = await self._api_client.get(f"/movie/{tmdb_id}")
         except httpx.RequestError as e:
             raise IoException from e
 
         self.validate_response(response)
 
-        tmdb_movie = Movie.model_validate_json(response.content)
-        return tmdb_movie.to_model()
+        return Movie.model_validate_json(response.content)
 
-    async def get_movie_by_imdb_id(self, imdb_id: str) -> model.Movie | None:
+    async def get_movie_by_imdb_id(self, imdb_id: str) -> Movie | None:
         try:
-            response = await self._client.get(
+            response = await self._api_client.get(
                 f"/find/{imdb_id}",
                 params=dict(
                     external_source="imdb_id",
@@ -135,18 +145,20 @@ class TmdbClient:
 
         self.validate_response(response)
 
-        results = MovieResults.model_validate_json(response.text)
+        results = MovieResults.model_validate_json(response.content)
         if not results.movie_results:
             return None
 
         if len(results.movie_results) > 1:
             _logger.warning("Received more than one result for IMDb ID %s", imdb_id)
 
-        return results.movie_results[0].to_model()
+        return results.movie_results[0]
 
-    async def get_cover_metadata(self, tmdb_id: str) -> model.CoverMetadata | None:
+    async def get_cover_metadata(
+        self, tmdb_id: str | int
+    ) -> model.CoverMetadata | None:
         try:
-            response = await self._client.get(
+            response = await self._api_client.get(
                 f"/movie/{tmdb_id}/images",
                 params=dict(
                     include_image_language="en,de,null",
@@ -165,5 +177,22 @@ class TmdbClient:
         api_config = await self._get_api_configuration()
         return image.to_model(api_config.images)
 
+    async def resolve_tmdb_url(self, tmdb_id: str | int) -> URL:
+        try:
+            response = await self._public_client.head(f"/movie/{tmdb_id}")
+        except httpx.RequestError as e:
+            _logger.error("Could not get redirect-less TMDB URL", exc_info=e)
+            return e.request.url
+
+        self.validate_response(response, is_redirect_ok=True)
+
+        next_request = response.next_request
+        if next_request is None:
+            _logger.error("Did not get a redirect for TMDB ID %s", tmdb_id)
+            return response.request.url
+
+        return next_request.url
+
     async def close(self) -> None:
-        await self._client.aclose()
+        await self._api_client.aclose()
+        await self._public_client.aclose()

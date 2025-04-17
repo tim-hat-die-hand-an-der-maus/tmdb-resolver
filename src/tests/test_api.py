@@ -11,6 +11,8 @@ EXAMPLE_DATA_HOLIDATE = {
     "id": "615665",
     "title": "Holidate",
     "year": 2020,
+    "imdbUrl": "https://www.imdb.com/title/tt9866072",
+    "tmdbUrl": EXAMPLE_URL_HOLIDATE,
 }
 
 
