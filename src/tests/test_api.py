@@ -60,3 +60,35 @@ def test_get_cover(client):
     assert image_response.status_code == 200
     assert image_response.headers["content-type"] == "image/jpeg"
     assert int(image_response.headers["content-length"]) > 0
+
+
+def test_by_id__tmdb(client):
+    response = client.post("/by_id/615665")
+
+    assert response.status_code == 200
+    assert_response_payload(
+        expected=EXAMPLE_DATA_HOLIDATE,
+        actual=response.json(),
+    )
+
+
+def test_by_id__imdb(client):
+    response = client.post(
+        "/by_id/tt9866072",
+        params=dict(external_source="imdb"),
+    )
+
+    assert response.status_code == 200
+    assert_response_payload(
+        expected=EXAMPLE_DATA_HOLIDATE,
+        actual=response.json(),
+    )
+
+
+def test_by_id__invalid_source(client):
+    response = client.post(
+        "/by_id/tt9866072",
+        params=dict(external_source="anything"),
+    )
+
+    assert response.is_client_error
