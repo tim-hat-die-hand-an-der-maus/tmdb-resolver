@@ -4,7 +4,9 @@ from collections.abc import Generator
 
 import httpx
 from httpx import Request, Response
+from pydantic import HttpUrl
 
+import tmdb_resolver.client._url_parser as url_parser
 from tmdb_resolver import model
 from tmdb_resolver.client._model import TmdbMovie
 from tmdb_resolver.config import TmdbConfig
@@ -42,32 +44,9 @@ class TmdbClient:
             headers={"Accept": "application/json"},
         )
 
-    @staticmethod
-    def _extract_id_from_url(url: str) -> str:
-        parsed = httpx.URL(url)
-        if parsed.host not in ["themoviedb.org", "www.themoviedb.org"]:
-            raise ValueError("Incorrect host")
-
-        path = parsed.path
-        path_segments = path.split("/")
-
-        if len(path_segments) != 3:
-            raise ValueError(f"Invalid URL path: {path}")
-
-        if path_segments[0] != "" or path_segments[1] != "movie":
-            raise ValueError(f"Non-movie URL: {url}")
-
-        movie_id = path_segments[2].split("-")[0]
+    async def get_movie_by_tmdb_url(self, url: HttpUrl) -> model.Movie | None:
         try:
-            int(movie_id)
-        except ValueError:
-            raise ValueError(f"Could not extract movie ID from URL {url}")
-
-        return movie_id
-
-    async def get_movie_by_url(self, url: str) -> model.Movie | None:
-        try:
-            movie_id = self._extract_id_from_url(url)
+            movie_id = url_parser.extract_tmdb_id(url)
         except ValueError as e:
             _logger.info("Could not extract movie id from %s: %s", url, e)
             return None

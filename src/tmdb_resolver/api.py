@@ -29,7 +29,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/by_link")
 async def movie_by_link(req: model.ResolveByLinkRequest) -> model.Movie:
-    movie = await client.get_movie_by_url(str(req.link))
+    movie = await client.get_movie_by_tmdb_url(req.link)
 
     if not movie:
         raise HTTPException(
