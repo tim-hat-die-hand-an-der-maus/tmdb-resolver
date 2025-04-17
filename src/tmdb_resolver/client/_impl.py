@@ -1,14 +1,18 @@
 import abc
 import logging
 from collections.abc import Generator
+from typing import Self
 
 import httpx
+from bs_state import StateStorage
 from httpx import Request, Response
 
 from tmdb_resolver import model
 from tmdb_resolver.client._model import Movie, MovieResults
+from tmdb_resolver.client._state import State
 from tmdb_resolver.client._url_parser import UrlParser
 from tmdb_resolver.config import TmdbConfig
+from tmdb_resolver.state import StateStorageLoader
 
 _logger = logging.getLogger(__name__)
 
@@ -35,12 +39,28 @@ class _BearerAuth(httpx.Auth):
 
 
 class TmdbClient:
-    def __init__(self, config: TmdbConfig) -> None:
+    def __init__(
+        self,
+        config: TmdbConfig,
+        state_storage: StateStorage[State],
+    ) -> None:
         self._config = config
         self._client = httpx.AsyncClient(
             auth=_BearerAuth(config.api_token),
             base_url="https://api.themoviedb.org/3",
             headers={"Accept": "application/json"},
+        )
+        self._state_storage = state_storage
+
+    @classmethod
+    async def init(
+        cls,
+        config: TmdbConfig,
+        state_storage_loader: StateStorageLoader,
+    ) -> Self:
+        return cls(
+            config,
+            await state_storage_loader(State.initial()),
         )
 
     @property

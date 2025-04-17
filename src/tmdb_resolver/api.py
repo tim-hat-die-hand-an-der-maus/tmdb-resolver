@@ -6,18 +6,21 @@ from fastapi import FastAPI, HTTPException
 from tmdb_resolver import model
 from tmdb_resolver.client import TmdbClient
 from tmdb_resolver.config import load_config
+from tmdb_resolver.state import StateStorageLoader, init_state_storage_loader
 
 _logger = logging.getLogger(__name__)
 
 
 config = load_config()
 client: TmdbClient = None  # type: ignore
+state_storage_loader: StateStorageLoader = None  # type: ignore
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    global client
-    client = TmdbClient(config.tmdb)
+    global client, state_storage_loader
+    state_storage_loader = await init_state_storage_loader()
+    client = await TmdbClient.init(config.tmdb, state_storage_loader)
 
     yield
 

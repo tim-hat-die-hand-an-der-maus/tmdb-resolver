@@ -1,13 +1,15 @@
 import abc
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, HttpUrl
 
 from tmdb_resolver import model
 
 
 class TmdbResponse(BaseModel, abc.ABC):
-    pass
+    model_config = ConfigDict(
+        frozen=True,
+    )
 
 
 class Genre(TmdbResponse):
@@ -37,3 +39,15 @@ class Movie(TmdbResponse):
 
 class MovieResults(TmdbResponse):
     movie_results: list[Movie]
+
+
+class ApiImagesConfiguration(TmdbResponse):
+    base_url: HttpUrl
+    secure_base_url: HttpUrl
+    logo_sizes: list[str]
+    poster_sizes: list[str]
+
+
+class ApiConfiguration(TmdbResponse):
+    images: ApiImagesConfiguration
+    change_keys: list[str]

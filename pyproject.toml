@@ -11,6 +11,7 @@ classifiers = [
 
 dependencies = [
     "bs-config [dotenv] ==1.1.1",
+    "bs-state ==1.0.0",
     "fastapi ==0.115.12",
     "pydantic ==2.11.3",
     "httpx ==0.28.*",
@@ -37,6 +38,7 @@ explicit = true
 
 [tool.uv.sources]
 bs-config = { index = "internal" }
+bs-state = {index="internal"}
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
