@@ -52,7 +52,7 @@ class Movie(TmdbResponse):
     id: int
     original_language: str
     release_date: datetime
-    poster_path: str
+    poster_path: str | None
     title: str
     vote_count: int
     vote_average: float
