@@ -188,7 +188,7 @@ class TmdbClient:
 
         next_request = response.next_request
         if next_request is None:
-            _logger.error("Did not get a redirect for TMDB ID %s", tmdb_id)
+            _logger.warning("Did not get a redirect for TMDB ID %s", tmdb_id)
             return response.request.url
 
         return next_request.url
