@@ -34,7 +34,7 @@ class UrlParser:
             return None
 
     def extract_imdb_id(self, url: HttpUrl) -> str | None:
-        if url.host not in ["imdb.com", "www.imdb.com"]:
+        if url.host not in ["imdb.com", "www.imdb.com", "m.imdb.com"]:
             _logger.info("Incorrect host: %s", url.host)
             return None
 
