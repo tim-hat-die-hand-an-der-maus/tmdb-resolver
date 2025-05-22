@@ -13,7 +13,7 @@ dependencies = [
     "bs-config [dotenv] ==1.1.1",
     "bs-state ==1.0.0",
     "fastapi ==0.115.12",
-    "pydantic ==2.11.4",
+    "pydantic ==2.11.5",
     "httpx ==0.28.*",
     "sentry-sdk [fastapi] ==2.29.*",
     "uvicorn ==0.34.2",
