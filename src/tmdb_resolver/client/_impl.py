@@ -196,3 +196,4 @@ class TmdbClient:
     async def close(self) -> None:
         await self._api_client.aclose()
         await self._public_client.aclose()
+        await self._state_storage.close()
