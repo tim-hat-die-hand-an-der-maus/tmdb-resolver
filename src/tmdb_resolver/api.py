@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request, status
+from starlette.responses import JSONResponse
 
 from tmdb_resolver import model
 from tmdb_resolver.client import IoException, TmdbClient
@@ -37,6 +38,13 @@ async def validation_exception_handler(request: Request, exc: IoException):
     return HTTPException(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         detail=f"Temporarily unavailable: {exc}",
+    )
+
+
+@app.get("/healthz")
+async def healthz() -> JSONResponse:
+    return JSONResponse(
+        content=dict(status="ok"),
     )
 
 

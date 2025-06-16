@@ -38,6 +38,10 @@ spec:
             - containerPort: 8000
               name: http
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              port: http
+              path: "/healthz"
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}

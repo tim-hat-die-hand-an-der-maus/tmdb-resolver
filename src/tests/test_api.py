@@ -29,6 +29,12 @@ def assert_response_payload(*, expected: dict, actual: dict) -> None:
     assert actual == expected
 
 
+def test_healthz(client):
+    response = client.get("/healthz")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 @pytest.mark.parametrize(
     "url",
     [
