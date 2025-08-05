@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:0.8.4-python3.13-bookworm-slim
+FROM ghcr.io/astral-sh/uv:0.8.5-python3.13-bookworm-slim
 
 RUN apt-get update -qq \
     && apt-get install -yq --no-install-recommends tini  \
