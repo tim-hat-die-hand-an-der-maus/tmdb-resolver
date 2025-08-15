@@ -40,14 +40,14 @@ dotenv = [
 
 [[package]]
 name = "bs-state"
-version = "2.2.1"
+version = "2.2.2"
 source = { registry = "https://pypi.bjoernpetersen.net/simple" }
 dependencies = [
     { name = "pydantic" },
 ]
-sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.1.tar.gz", hash = "sha256:9bac1466eda0b78b1171bb0d475374ee1a68ddea0e4be001d3de423e8a897a28" }
+sdist = { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.2.tar.gz", hash = "sha256:9a539fe4bef8aa5abefa80edec82befb24c8a5689b5e81a0d8dc33e36ad854ad" }
 wheels = [
-    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.1-py3-none-any.whl", hash = "sha256:ce25f3cbe5642a97cb41252db52d9fad4ed98ab02eb1efc3dc070aba4326ad6a" },
+    { url = "https://pypi.bjoernpetersen.net/packages/bs_state-2.2.2-py3-none-any.whl", hash = "sha256:296693560fc9632719ba3bdf55be677b63b3f2cee5c8bab1305a4d3603363858" },
 ]
 
 [[package]]
@@ -372,7 +372,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "bs-config", extras = ["dotenv"], specifier = "==1.1.1", index = "https://pypi.bjoernpetersen.net/simple" },
-    { name = "bs-state", specifier = "==2.2.1", index = "https://pypi.bjoernpetersen.net/simple" },
+    { name = "bs-state", specifier = "==2.2.2", index = "https://pypi.bjoernpetersen.net/simple" },
     { name = "fastapi", specifier = "==0.116.1" },
     { name = "httpx", specifier = "==0.28.*" },
     { name = "pydantic", specifier = "==2.11.7" },
