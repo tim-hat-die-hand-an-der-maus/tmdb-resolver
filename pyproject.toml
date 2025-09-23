@@ -16,7 +16,7 @@ dependencies = [
     "pydantic ==2.11.9",
     "httpx ==0.28.*",
     "sentry-sdk [fastapi] ==2.38.*",
-    "uvicorn ==0.36.1",
+    "uvicorn ==0.37.0",
 ]
 
 [dependency-groups]
