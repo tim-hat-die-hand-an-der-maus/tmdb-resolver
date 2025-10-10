@@ -12,7 +12,7 @@ classifiers = [
 dependencies = [
     "bs-config [dotenv] ==1.1.2",
     "bs-state ==2.3.1",
-    "fastapi ==0.118.2",
+    "fastapi ==0.118.3",
     "pydantic ==2.12.0",
     "httpx ==0.28.*",
     "sentry-sdk [fastapi] ==2.41.*",
