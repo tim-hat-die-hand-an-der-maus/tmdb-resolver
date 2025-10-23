@@ -4,9 +4,9 @@ name = "tmdb-resolver"
 version = "1.0.0"
 description = ""
 authors = [{ name = "BlindfoldedSurgery", email = "team@blindfolded.surgery" }]
+license = "MIT"
 classifiers = [
     "Private :: Do Not Upload",
-    "License :: OSI Approved :: MIT License",
 ]
 
 dependencies = [
@@ -30,6 +30,11 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
 
 [[tool.uv.index]]
 name = "internal"
