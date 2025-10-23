@@ -15,7 +15,7 @@ class TmdbConfig:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            api_token=env.get_string("API_TOKEN", required=True),
+            api_token=env.get_string("api-token", required=True),
         )
 
 
@@ -28,9 +28,9 @@ class Config:
     @classmethod
     def from_env(cls, env: Env) -> Self:
         return cls(
-            app_version=env.get_string("APP_VERSION", default="dev"),
-            sentry_dsn=env.get_string("SENTRY_DSN"),
-            tmdb=TmdbConfig.from_env(env.scoped("TMDB_")),
+            app_version=env.get_string("app-version", default="dev"),
+            sentry_dsn=env.get_string("sentry-dsn"),
+            tmdb=TmdbConfig.from_env(env / "tmdb"),
         )
 
 
