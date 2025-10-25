@@ -10,7 +10,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "bs-config [dotenv] ==3.2.1",
+    "bs-config [dotenv] ==3.3.0",
     "bs-state ==2.4.0",
     "fastapi ==0.120.0",
     "pydantic ==2.12.3",
