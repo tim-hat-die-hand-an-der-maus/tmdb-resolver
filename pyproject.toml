@@ -31,7 +31,8 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.pytest.ini_options]
+[tool.pytest]
+strict = true
 addopts = [
     "--import-mode=importlib",
 ]
