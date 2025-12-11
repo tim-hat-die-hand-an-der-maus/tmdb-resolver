@@ -24,7 +24,7 @@ dev = [
     "httpx ==0.28.*",
     "mypy ==1.19.*",
     "pytest >=9, <10",
-    "ruff ==0.14.8",
+    "ruff ==0.14.9",
 ]
 
 [build-system]
